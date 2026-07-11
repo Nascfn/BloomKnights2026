@@ -8,7 +8,13 @@ function App() {
           Scan a product, trace its parent company, and see what a monthly stock
           investment could have looked like.
         </p>
-        <button type="button">Client is running</button>
+        <div>
+          <span className="pill">Doritos</span>{" "}
+          <span className="pill pill-final">PepsiCo</span>
+        </div>
+        <button type="button" className="primary">
+          Client is running
+        </button>
       </section>
     </main>
   );

@@ -12,9 +12,10 @@ Vite + React app (plain JS, no TypeScript). Runtime deps: `react`, `react-dom`, 
   `result.status`: `US_PUBLIC` → ResultScreen, `PRIVATE` → PrivateScreen,
   `FOREIGN` → ForeignScreen, anything else (`UNIDENTIFIABLE`, `ERROR`,
   `TICKER_NOT_VERIFIED`) → RetryScreen with the message.
-- `src/index.css` — the ENTIRE visual identity: dark fintech theme as CSS variables
-  (near-black background, green for gains, red for losses, clean sans-serif), centered
-  card layout ~640px max width. Plain CSS only, no Tailwind.
+- `src/index.css` — the ENTIRE visual identity: light theme as CSS variables built from
+  the locked brand palette (Willow Green, Muted Olive, Mint Cream, Thistle, Tea Green —
+  see `src/colors.js`), green (Muted Olive) for gains, red for losses, clean sans-serif,
+  centered card layout ~640px max width. Plain CSS only, no Tailwind.
 - `src/api/client.js` — the only network code: `analyzeImage(file, monthly)` packs the
   photo into `FormData` (field name `image`) and POSTs to `/api/analyze?monthly=...`.
 - `src/utils/dca.js` — client copy of the DCA math so the $/month slider recomputes
