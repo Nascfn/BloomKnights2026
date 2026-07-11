@@ -11,7 +11,7 @@ This is an **Express** server. NOT Python, NOT Flask — any doc mentioning
 - `.env` (gitignored) / `.env.example` — `GEMINI_API_KEY`, `FMP_API_KEY`,
   `GEMINI_MODEL=gemini-2.5-flash`, `MOCK_MODE=true`, `PORT=5001`.
 - `routes/analyze.js` — the orchestrator; owns the frozen contract below.
-- `services/gemini.js`, `services/fmp.js` — external world (see `services/CLAUDE.md`).
+- `services/gemini.js`, `services/fmp.js` — external world (see `services/CONTEXT.md`).
 - `utils/dca.js` — canonical DCA math: `firstTradingDays(daily)` (first row of each of
   the last 12 calendar months incl. current) and `dcaResult(monthly, buys, latestPrice)`
   (shares = Σ monthly/price; money 2dp, shares 4dp; fixed disclaimer note).

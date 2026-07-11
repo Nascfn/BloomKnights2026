@@ -20,7 +20,7 @@ Vite + React app (plain JS, no TypeScript). Runtime deps: `react`, `react-dom`, 
 - `src/utils/dca.js` — client copy of the DCA math so the $/month slider recomputes
   **instantly with zero network calls**. MUST stay line-for-line identical to
   `server/utils/dca.js` (same rounding: money 2dp, shares 4dp; same disclaimer note).
-- `src/components/` — one file per screen/widget (see `src/components/CLAUDE.md`).
+- `src/components/` — one file per screen/widget (see `src/components/CONTEXT.md`).
 
 ## Rules
 

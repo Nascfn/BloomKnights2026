@@ -19,12 +19,12 @@ prices, and a dollar-cost-averaging ("what if I invested $X/month") calculator.
 ## Layout
 
 - `package.json` — root launcher only: `setup` installs client+server, `dev` runs both via concurrently
-- `client/` — the React app (see `client/CLAUDE.md`)
-- `server/` — the Express API (see `server/CLAUDE.md`)
+- `client/` — the React app (see `client/CONTEXT.md`)
+- `server/` — the Express API (see `server/CONTEXT.md`)
 
 ## Golden rules
 
-1. **The API contract is FROZEN** (documented in `server/CLAUDE.md`). Client and server
+1. **The API contract is FROZEN** (documented in `server/CONTEXT.md`). Client and server
    are built by different people against it; never change it unilaterally.
 2. **MOCK_MODE is sacred.** With `MOCK_MODE=true` (the default) the whole app works
    end-to-end with zero API keys, returning `server/mocks/pep.json`. It is the offline
