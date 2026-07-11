@@ -1,0 +1,43 @@
+# Render Blueprint for WhoOwnsIt.
+# Deploy: Render dashboard → New → Blueprint → connect this repo → it reads
+# this file and creates both services. It will prompt for the two secret
+# values (GEMINI_API_KEY, FMP_API_KEY) during setup — paste them there.
+#
+# NOTE: the static site proxies /api/* to the API service's public URL below.
+# If Render assigns the API a different subdomain (name already taken),
+# update the `destination` to the actual URL shown on the API service page.
+
+services:
+  # Express API — Node web service
+  - type: web
+    name: whoownsit-api
+    runtime: node
+    rootDir: whoownsit/server
+    buildCommand: npm ci
+    startCommand: npm start
+    plan: free # ⚠️ free instances sleep after ~15 min idle (cold start ~1 min). Upgrade to 'starter' before demo day.
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: GEMINI_API_KEY
+        sync: false # prompts for the value in the dashboard; never lives in git
+      - key: FMP_API_KEY
+        sync: false
+
+  # React client — static site (free), same-origin /api proxy via rewrite
+  - type: web
+    name: whoownsit
+    runtime: static
+    rootDir: whoownsit/client
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    domains:
+      - whoownsit.app
+      - www.whoownsit.app
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://whoownsit-api.onrender.com/api/*
