@@ -1,6 +1,31 @@
 :root {
-  color: #f5f7f8;
-  background: #0c1110;
+  /* Brand palette (locked — see colors.js) */
+  --willow-green: #b7d37f;
+  --muted-olive: #95b355;
+  --mint-cream: #ecf3f1;
+  --thistle: #d5b7c6;
+  --tea-green: #d3e5af;
+
+  /* Functional roles */
+  --background: var(--mint-cream);
+  --card: #ffffff;
+  --border: #d7e6d2;
+  --foreground: #1f2a20;
+  --muted-foreground: #5c6b5e;
+
+  --primary: var(--muted-olive);
+  --primary-hover: #7f9c46;
+  --primary-foreground: #0f1a0a;
+  --accent: var(--thistle);
+  --accent-foreground: #402f38;
+
+  /* Loss red is not part of the brand palette — added only as a
+     functional pairing with --primary for gain/loss coloring. */
+  --gain: var(--muted-olive);
+  --loss: #c97b7b;
+
+  color: var(--foreground);
+  background: var(--background);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -19,6 +44,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--background);
 }
 
 button,
@@ -31,8 +57,6 @@ button {
   border: 0;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #07100c;
-  background: #65d89a;
   cursor: pointer;
   font-weight: 700;
 }
@@ -49,19 +73,21 @@ button:disabled {
   padding: 2rem;
 }
 
-.intro-panel {
+.intro-panel,
+.card {
   display: grid;
   width: min(100%, 640px);
   gap: 1rem;
-  border: 1px solid #1e322b;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: clamp(1.25rem, 4vw, 2rem);
-  background: #101817;
+  background: var(--card);
+  box-shadow: 0 1px 2px rgba(31, 42, 32, 0.06);
 }
 
 .eyebrow {
   margin: 0;
-  color: #65d89a;
+  color: var(--primary);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -77,56 +103,133 @@ h1 {
 p {
   max-width: 52ch;
   margin: 0;
-  color: #c6d3ce;
+  color: var(--muted-foreground);
 }
 
-.scan-form,
-.result-stack,
-.status-panel {
-  display: grid;
-  gap: 1rem;
+/* Shared component classes (used across ScanScreen, ResultScreen, etc.) */
+
+.primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
-label {
-  display: grid;
-  gap: 0.45rem;
-  color: #dce7e2;
+.primary:hover {
+  background: var(--primary-hover);
+}
+
+.primary:disabled {
+  background: var(--border);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  background: var(--tea-green);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pill.pill-final {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.gain {
+  color: var(--gain);
   font-weight: 700;
 }
 
-input {
-  min-width: 0;
-  border: 1px solid #2f4a40;
-  border-radius: 8px;
-  padding: 0.75rem;
-  color: #f5f7f8;
-  background: #0c1110;
+.loss {
+  color: var(--loss);
+  font-weight: 700;
 }
 
-pre {
-  max-width: 100%;
-  max-height: 420px;
-  overflow: auto;
-  border: 1px solid #223a31;
-  border-radius: 8px;
+.disclaimer {
   margin: 0;
+  max-width: none;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--primary);
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+input[type="number"],
+input[type="text"] {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.picker {
+  width: 100%;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
   padding: 1rem;
-  color: #dce7e2;
-  background: #0a0f0d;
-  white-space: pre-wrap;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  text-align: center;
+}
+
+.picker:hover {
+  border-color: var(--primary);
+  color: var(--foreground);
 }
 
 .spinner {
   width: 2rem;
-  aspect-ratio: 1;
-  border: 3px solid #2f4a40;
-  border-top-color: #65d89a;
+  height: 2rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Temporary JSON placeholders in App.jsx until the result screens land (#15, #20) */
+
+.result-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+pre {
+  max-width: 100%;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  padding: 1rem;
+  color: var(--foreground);
+  background: var(--background);
+  white-space: pre-wrap;
+  font-size: 0.8rem;
 }
