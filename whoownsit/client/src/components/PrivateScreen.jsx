@@ -1,3 +1,5 @@
+import OwnershipChain from "./OwnershipChain";
+
 function PrivateScreen({ result, onReset }) {
   const { ownership_chain: chain, ultimate_parent: ultimateParent, licensing_note: licensingNote, summary } = result;
 
@@ -6,16 +8,7 @@ function PrivateScreen({ result, onReset }) {
       <p className="eyebrow">🔒 Privately held</p>
       <h1>Privately held by {ultimateParent}</h1>
 
-      <div>
-        {chain.map((name, index) => (
-          <span
-            key={name}
-            className={index === chain.length - 1 ? "pill pill-final" : "pill"}
-          >
-            {name}
-          </span>
-        ))}
-      </div>
+      <OwnershipChain chain={chain} />
 
       {licensingNote && (
         <div>
