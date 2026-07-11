@@ -27,28 +27,34 @@ function App() {
     setPhase("scan");
   }
 
-  // The hero logo only shrinks into a header once a scan is in flight or
-  // done, so it stays visible while the image's info is shown to the user.
-  const isCompact = phase !== "scan";
+  // The scan phase is a full-bleed hero with its own overlaid nav; the
+  // loading/result phases sit on the light theme under a slim sticky header.
+  if (phase === "scan") {
+    return (
+      <main className="app-shell">
+        <ScanScreen onScan={handleScan} />
+      </main>
+    );
+  }
 
   return (
     <main className="app-shell">
-      <div className="page">
-        <div className={`brand-header${isCompact ? " is-compact" : ""}`}>
-          <div className="brand-stage">
-            <img src="/logo.png" alt="" className="logo" />
-            <div className="brand-copy">
-              {!isCompact && <p className="eyebrow">Bloom Knights 2026</p>}
-              <h1 id="scan-title" className="brand-title">
-                Who Owns It?
-              </h1>
-            </div>
-          </div>
+      <header className="nav app-header">
+        <div className="nav-brand">
+          <img src="/logo.png" alt="" className="nav-logo" />
+          <span className="nav-wordmark">Who Owns It?</span>
         </div>
+        <span className="nav-live">
+          <span className="nav-dot" aria-hidden="true" />
+          Live
+        </span>
+      </header>
 
-        {phase === "scan" && <ScanScreen onScan={handleScan} />}
-        {phase === "loading" && <LoadingScreen />}
-        {phase === "done" && <DoneState result={result} onReset={handleReset} />}
+      <div className="page-wrap">
+        <div className="page">
+          {phase === "loading" && <LoadingScreen />}
+          {phase === "done" && <DoneState result={result} onReset={handleReset} />}
+        </div>
       </div>
     </main>
   );
