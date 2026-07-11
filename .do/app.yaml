@@ -6,8 +6,7 @@
 # (app → Settings → api component → Environment Variables):
 #   GEMINI_API_KEY  (encrypted)
 #   FMP_API_KEY     (encrypted)
-# then set MOCK_MODE=false to go live. First deploy works in mock mode
-# with no keys at all.
+# The app is live-only: scans fail until both keys are set.
 
 name: whoownsit
 region: nyc
@@ -37,9 +36,6 @@ services:
     health_check:
       http_path: /api/health
     envs:
-      - key: MOCK_MODE
-        value: "true"
-        scope: RUN_TIME
       - key: GEMINI_MODEL
         value: gemini-3.5-flash
         scope: RUN_TIME

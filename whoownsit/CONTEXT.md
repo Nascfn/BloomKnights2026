@@ -26,9 +26,9 @@ prices, and a dollar-cost-averaging ("what if I invested $X/month") calculator.
 
 1. **The API contract is FROZEN** (documented in `server/CONTEXT.md`). Client and server
    are built by different people against it; never change it unilaterally.
-2. **MOCK_MODE is sacred.** With `MOCK_MODE=true` (the default) the whole app works
-   end-to-end with zero API keys, returning `server/mocks/pep.json`. It is the offline
-   demo fallback — never break it.
+2. **The app is live-only** (mock mode was removed 2026-07-11): every scan hits real
+   Gemini + FMP, so `server/.env` needs both keys. The offline fallback is the old
+   tagged build `demo-fallback-mock-v1`.
 3. All secrets live in `server/.env` (gitignored). The client only ever calls relative
    `/api/...` URLs through the Vite proxy — no keys, no hardcoded hosts in client code.
 4. The DCA formula exists in two copies (`server/utils/dca.js` and `client/src/utils/dca.js`)

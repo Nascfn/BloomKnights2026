@@ -1,15 +1,12 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import { firstTradingDays, dcaResult } from '../utils/dca.js';
+import { identifyOwner } from '../services/gemini.js';
+import { getProfile, getDailyHistory } from '../services/fmp.js';
+import { getCached, setCache } from '../utils/cache.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const MOCK_PATH = path.join(__dirname, '../mocks/pep.json');
 
 const UNIDENTIFIABLE_MESSAGE =
   "Couldn't identify a branded product — try again with the logo or packaging clearly in frame.";
@@ -38,22 +35,13 @@ function identityFields(gemini) {
 }
 
 router.get('/health', (req, res) => {
-  res.json({ ok: true, mock: process.env.MOCK_MODE === 'true' });
+  res.json({ ok: true });
 });
 
 router.post('/analyze', upload.single('image'), async (req, res) => {
   const monthly = Number(req.query.monthly) || 100;
 
   try {
-    if (process.env.MOCK_MODE === 'true') {
-      const mock = JSON.parse(await readFile(MOCK_PATH, 'utf8'));
-      mock.dca = dcaResult(monthly, mock.monthly_buys, mock.share_price);
-      return res.json(mock);
-    }
-
-    // #7 — services/gemini.js. Loaded dynamically so the mock path above
-    // works standalone before the live services land.
-    const { identifyOwner } = await import('../services/gemini.js');
     const gemini = await identifyOwner(req.file.buffer, req.file.mimetype);
 
     if (gemini.status === 'UNIDENTIFIABLE') {
@@ -64,12 +52,10 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
       return res.json(identityFields(gemini));
     }
 
-    // US_PUBLIC — #9 cache, else #8 FMP.
-    const { getCached, setCache } = await import('../utils/cache.js');
-    let payload = (await getCached?.(gemini.ticker)) ?? null;
+    // US_PUBLIC — same-day cache, else FMP.
+    let payload = getCached(gemini.ticker);
 
     if (!payload) {
-      const { getProfile, getDailyHistory } = await import('../services/fmp.js');
       const [profile, daily] = await Promise.all([
         getProfile(gemini.ticker),
         getDailyHistory(gemini.ticker),
@@ -92,7 +78,7 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
         monthly_buys: firstTradingDays(daily),
       };
       if (!isStaleQuote(payload.as_of)) {
-        await setCache?.(gemini.ticker, payload);
+        setCache(gemini.ticker, payload);
       }
     }
 
@@ -132,10 +118,7 @@ router.get('/calc', async (req, res) => {
   const { ticker, monthly } = req.query;
 
   try {
-    // #9 — utils/cache.js. Optional chaining means a not-yet-implemented
-    // cache (or an uncached ticker) both fall through to 404 below.
-    const { getCached } = await import('../utils/cache.js');
-    const cached = await getCached?.(ticker);
+    const cached = getCached(ticker);
 
     if (!cached) {
       return res.status(404).json({ status: 'ERROR', message: `No cached data for ticker "${ticker}"` });
