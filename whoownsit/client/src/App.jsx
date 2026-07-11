@@ -27,22 +27,31 @@ function App() {
     setPhase("scan");
   }
 
+  // The scan phase is a full-bleed hero with its own overlaid nav; the
+  // loading/result phases sit on the light theme under a slim sticky header.
+  if (phase === "scan") {
+    return (
+      <main className="app-shell">
+        <ScanScreen onScan={handleScan} />
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
-      <header className="topbar">
-        <div className="topbar-brand">
-          <img src="/logo.png" alt="" className="topbar-logo" />
-          <span className="topbar-wordmark">Who Owns It?</span>
+      <header className="nav app-header">
+        <div className="nav-brand">
+          <img src="/logo.png" alt="" className="nav-logo" />
+          <span className="nav-wordmark">Who Owns It?</span>
         </div>
-        <span className="topbar-live">
-          <span className="topbar-dot" aria-hidden="true" />
-          Live market data
+        <span className="nav-live">
+          <span className="nav-dot" aria-hidden="true" />
+          Live
         </span>
       </header>
 
       <div className="page-wrap">
         <div className="page">
-          {phase === "scan" && <ScanScreen onScan={handleScan} />}
           {phase === "loading" && <LoadingScreen />}
           {phase === "done" && <DoneState result={result} onReset={handleReset} />}
         </div>
