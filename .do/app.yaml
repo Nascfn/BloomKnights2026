@@ -11,6 +11,17 @@
 name: whoownsit
 region: nyc
 
+# Custom domain. whoownsit.app is an apex domain on a .app TLD:
+# - .app is HSTS-preloaded, so it ONLY works over HTTPS — the site is
+#   unreachable on this domain until DNS resolves and DO issues the cert.
+# - Easiest DNS setup for an apex: point the domain's nameservers at
+#   DigitalOcean (ns1/ns2/ns3.digitalocean.com) at the registrar.
+domains:
+  - domain: whoownsit.app
+    type: PRIMARY
+  - domain: www.whoownsit.app
+    type: ALIAS
+
 static_sites:
   - name: web
     github:
