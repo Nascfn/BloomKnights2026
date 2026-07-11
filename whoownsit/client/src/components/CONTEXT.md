@@ -19,7 +19,7 @@ One React component per file, plain JS + the CSS variables/classes from `../inde
 - `CompanyCard.jsx` — `company.logo_url` (graceful fallback on 404), name, sector,
   exchange, and the share price as a BIG number with the `as_of` date small underneath.
 - `PriceChart.jsx` — Recharts `LineChart` fed by `chart[]` (~250 `{date, price}` points):
-  no dots, tooltip on, auto y-axis domain, sparse x ticks, dark-themed axes/tooltip,
+  no dots, tooltip on, auto y-axis domain, sparse x ticks, light-themed axes/tooltip,
   line colored green if last ≥ first else red.
 - `DcaCalculator.jsx` — slider $25–$1000 step $25, initial $100. On change, recompute via
   `../utils/dca.js` from `monthly_buys` + `share_price` props — NEVER call the network.
