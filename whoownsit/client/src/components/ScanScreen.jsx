@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 function ScanScreen({ onScan }) {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
-  const [monthly, setMonthly] = useState(100);
 
   const handleFileChange = (event) => {
     setFile(event.target.files?.[0] ?? null);
@@ -12,7 +11,7 @@ function ScanScreen({ onScan }) {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!file) return;
-    onScan(file, monthly);
+    onScan(file);
   };
 
   return (
@@ -40,16 +39,6 @@ function ScanScreen({ onScan }) {
         >
           {file ? file.name : "Take or choose a photo"}
         </button>
-
-        <label htmlFor="monthly-amount">$/month to invest</label>
-        <input
-          id="monthly-amount"
-          type="number"
-          min="1"
-          step="1"
-          value={monthly}
-          onChange={(event) => setMonthly(Number(event.target.value))}
-        />
 
         <button type="submit" className="primary" disabled={!file}>
           Scan

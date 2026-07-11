@@ -5,8 +5,8 @@ One React component per file, plain JS + the CSS variables/classes from `../inde
 ## Pre-result flow
 
 - `ScanScreen.jsx` — the demo starts here. File/camera input
-  (`accept="image/*" capture`), a `$/month` number field defaulting to 100, and a big
-  primary **Scan** button (disabled until a file is chosen) that calls `onScan(file, monthly)`.
+  (`accept="image/*" capture`) and a big
+  primary **Scan** button (disabled until a file is chosen) that calls `onScan(file)`. No amount input — the DCA slider on the result screen owns that.
 - `LoadingScreen.jsx` — spinner + fun copy ("Tracing the corporate family tree…").
 
 ## US_PUBLIC result (the money shot)
@@ -21,7 +21,7 @@ One React component per file, plain JS + the CSS variables/classes from `../inde
 - `PriceChart.jsx` — Recharts `LineChart` fed by `chart[]` (~250 `{date, price}` points):
   no dots, tooltip on, auto y-axis domain, sparse x ticks, light-themed axes/tooltip,
   line colored green if last ≥ first else red.
-- `DcaCalculator.jsx` — slider $25–$1000 step $25, initial $100. On change, recompute via
+- `DcaCalculator.jsx` — slider $1–$200 step $1, initial $100. On change, recompute via
   `../utils/dca.js` from `monthly_buys` + `share_price` props — NEVER call the network.
   Profit green when ≥ 0, red otherwise. Always render the disclaimer note in small text.
 
