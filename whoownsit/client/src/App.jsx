@@ -1,21 +1,18 @@
+import { useState } from "react";
+import ScanScreen from "./components/ScanScreen";
+import LoadingScreen from "./components/LoadingScreen";
+
 function App() {
+  const [phase, setPhase] = useState("scan");
+
+  const handleScan = () => {
+    setPhase("loading");
+  };
+
   return (
     <main className="app-shell">
-      <section className="intro-panel" aria-labelledby="app-title">
-        <p className="eyebrow">Bloom Knights 2026</p>
-        <h1 id="app-title">Who Owns It?</h1>
-        <p>
-          Scan a product, trace its parent company, and see what a monthly stock
-          investment could have looked like.
-        </p>
-        <div>
-          <span className="pill">Doritos</span>{" "}
-          <span className="pill pill-final">PepsiCo</span>
-        </div>
-        <button type="button" className="primary">
-          Client is running
-        </button>
-      </section>
+      {phase === "scan" && <ScanScreen onScan={handleScan} />}
+      {phase === "loading" && <LoadingScreen />}
     </main>
   );
 }
