@@ -14,6 +14,15 @@ const MOCK_PATH = path.join(__dirname, '../mocks/pep.json');
 const UNIDENTIFIABLE_MESSAGE =
   "Couldn't identify a branded product — try again with the logo or packaging clearly in frame.";
 
+// A real listing trades most weekdays; a latest close older than this means
+// the ticker is likely delisted (or the data source is broken).
+const MAX_QUOTE_AGE_DAYS = 14;
+
+function isStaleQuote(asOf) {
+  const age = Date.now() - Date.parse(`${asOf}T00:00:00Z`);
+  return !asOf || Number.isNaN(age) || age > MAX_QUOTE_AGE_DAYS * 24 * 60 * 60 * 1000;
+}
+
 function identityFields(gemini) {
   const {
     status,
@@ -82,7 +91,20 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
         chart: daily.slice(-260),
         monthly_buys: firstTradingDays(daily),
       };
-      await setCache?.(gemini.ticker, payload);
+      if (!isStaleQuote(payload.as_of)) {
+        await setCache?.(gemini.ticker, payload);
+      }
+    }
+
+    // Staleness guard: FMP keeps serving old history for delisted tickers
+    // (e.g. Kellanova after the Mars buyout closed Dec 2025), and Gemini's
+    // training data can lag a going-private deal. Never show stale prices.
+    if (isStaleQuote(payload.as_of)) {
+      return res.json({
+        status: 'TICKER_NOT_VERIFIED',
+        gemini,
+        message: `Identified the owner but market data for "${gemini.ticker}" appears inactive or delisted — not showing stock numbers.`,
+      });
     }
 
     res.json({
