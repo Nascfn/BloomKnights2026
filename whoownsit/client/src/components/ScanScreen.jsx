@@ -15,14 +15,25 @@ function ScanScreen({ onScan }) {
     onScan(file);
   };
 
+  const openPicker = () => fileInputRef.current?.click();
+
   return (
-    <section className="card" aria-labelledby="scan-title">
-      <p>
-        Scan a product, trace its parent company, and see what a monthly stock
-        investment could have looked like.
+    <section className="hero" aria-labelledby="hero-title">
+      <img src="/logo.png" alt="" className="hero-mascot" />
+      <p className="hero-pill">Presented by Detective Lenny</p>
+      <h1 id="hero-title" className="hero-headline">
+        Investigate
+        <br />
+        <span className="hero-accent">Every Item</span>
+        <br />
+        You Buy
+      </h1>
+      <p className="hero-subtitle">
+        Scan any grocery product to uncover who owns it, how their stock is
+        performing, and what it would mean for your portfolio.
       </p>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="hero-form">
         <input
           ref={fileInputRef}
           type="file"
@@ -31,20 +42,19 @@ function ScanScreen({ onScan }) {
           onChange={handleFileChange}
           hidden
         />
-        <button
-          type="button"
-          className="picker"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {file ? file.name : "Take or choose a photo"}
-        </button>
 
-        {hasFile && (
-          <button type="submit" className="primary">
-            Scan
-          </button>
-        )}
+        {hasFile && <p className="hero-filename">{file.name}</p>}
+
+        <button
+          type={hasFile ? "submit" : "button"}
+          className="hero-cta"
+          onClick={hasFile ? undefined : openPicker}
+        >
+          {hasFile ? "Scan now" : "Start scanning"} <span aria-hidden="true">→</span>
+        </button>
       </form>
+
+      <p className="hero-caption">No account needed · Free to use</p>
     </section>
   );
 }
