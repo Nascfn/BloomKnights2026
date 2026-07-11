@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 function ScanScreen({ onScan }) {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
+  const hasFile = Boolean(file);
 
   const handleFileChange = (event) => {
     setFile(event.target.files?.[0] ?? null);
@@ -15,14 +16,26 @@ function ScanScreen({ onScan }) {
   };
 
   return (
-    <section className="card" aria-labelledby="scan-title">
-      <img src="/logo.png" alt="" className="logo" />
-      <p className="eyebrow">Bloom Knights 2026</p>
-      <h1 id="scan-title">Who Owns It?</h1>
-      <p>
-        Scan a product, trace its parent company, and see what a monthly stock
-        investment could have looked like.
-      </p>
+    <section
+      className={`card scan-card${hasFile ? " is-compact" : ""}`}
+      aria-labelledby="scan-title"
+    >
+      <div className="brand-stage">
+        <img src="/logo.png" alt="" className="logo" />
+        <div className="brand-copy">
+          {!hasFile && <p className="eyebrow">Bloom Knights 2026</p>}
+          <h1 id="scan-title" className="brand-title">
+            Who Owns It?
+          </h1>
+        </div>
+      </div>
+
+      {!hasFile && (
+        <p>
+          Scan a product, trace its parent company, and see what a monthly stock
+          investment could have looked like.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
@@ -41,9 +54,11 @@ function ScanScreen({ onScan }) {
           {file ? file.name : "Take or choose a photo"}
         </button>
 
-        <button type="submit" className="primary" disabled={!file}>
-          Scan
-        </button>
+        {hasFile && (
+          <button type="submit" className="primary">
+            Scan
+          </button>
+        )}
       </form>
     </section>
   );
