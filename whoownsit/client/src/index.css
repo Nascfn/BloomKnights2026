@@ -37,6 +37,11 @@ button {
   font-weight: 700;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .app-shell {
   display: grid;
   min-height: 100vh;
@@ -73,4 +78,55 @@ p {
   max-width: 52ch;
   margin: 0;
   color: #c6d3ce;
+}
+
+.scan-form,
+.result-stack,
+.status-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.45rem;
+  color: #dce7e2;
+  font-weight: 700;
+}
+
+input {
+  min-width: 0;
+  border: 1px solid #2f4a40;
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #f5f7f8;
+  background: #0c1110;
+}
+
+pre {
+  max-width: 100%;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #223a31;
+  border-radius: 8px;
+  margin: 0;
+  padding: 1rem;
+  color: #dce7e2;
+  background: #0a0f0d;
+  white-space: pre-wrap;
+}
+
+.spinner {
+  width: 2rem;
+  aspect-ratio: 1;
+  border: 3px solid #2f4a40;
+  border-top-color: #65d89a;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
