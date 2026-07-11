@@ -8,7 +8,5 @@ app.use('/api', analyzeRouter);
 
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
-  console.log(
-    `WhoOwnsIt server on http://localhost:${port} (mock=${process.env.MOCK_MODE === 'true'})`
-  );
+  console.log(`WhoOwnsIt server on http://localhost:${port}`);
 });

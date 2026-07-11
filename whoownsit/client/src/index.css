@@ -437,25 +437,3 @@ pre {
   white-space: pre-wrap;
   font-size: 0.8rem;
 }
-
-/* Mock/live mode badge */
-
-.mode-badge {
-  position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  z-index: 10;
-  border-radius: 999px;
-  padding: 0.3rem 0.7rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--gain);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-
-.mode-badge-mock {
-  color: var(--accent-foreground);
-  background: var(--accent);
-}

@@ -2,8 +2,12 @@
   "name": "whoownsit-server",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "start": "node index.js"
   },
   "dependencies": {
     "@google/genai": "^1.9.0",
