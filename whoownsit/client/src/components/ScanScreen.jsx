@@ -17,6 +17,7 @@ function ScanScreen({ onScan }) {
 
   return (
     <section className="card" aria-labelledby="scan-title">
+      <img src="/logo.png" alt="" className="logo" />
       <p className="eyebrow">Bloom Knights 2026</p>
       <h1 id="scan-title">Who Owns It?</h1>
       <p>
