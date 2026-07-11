@@ -85,12 +85,6 @@ button:disabled {
   box-shadow: 0 1px 2px rgba(31, 42, 32, 0.06);
 }
 
-.logo {
-  width: clamp(96px, 22vw, 140px);
-  height: auto;
-  justify-self: center;
-}
-
 .eyebrow {
   margin: 0;
   color: var(--primary);
@@ -104,6 +98,79 @@ h1 {
   margin: 0;
   font-size: clamp(2.25rem, 10vw, 4.5rem);
   line-height: 0.95;
+}
+
+.page {
+  display: grid;
+  width: min(100%, 640px);
+  gap: 1.25rem;
+}
+
+.brand-header {
+  position: relative;
+}
+
+.brand-stage {
+  position: relative;
+  height: 260px;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-header.is-compact .brand-stage {
+  height: 44px;
+}
+
+.brand-stage .logo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 110px;
+  height: auto;
+  transform: translateX(-50%);
+  transition:
+    top 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-header.is-compact .brand-stage .logo {
+  top: 0;
+  left: 0;
+  width: 40px;
+  transform: translateX(0);
+}
+
+.brand-copy {
+  position: absolute;
+  top: 170px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  transition:
+    top 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-header.is-compact .brand-copy {
+  top: 8px;
+  left: 52px;
+  transform: translateX(0);
+  text-align: left;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: clamp(2.25rem, 10vw, 4.5rem);
+  line-height: 0.95;
+  transition: font-size 0.4s ease;
+}
+
+.brand-header.is-compact .brand-title {
+  font-size: 1.15rem;
+  line-height: 1.2;
 }
 
 p {
