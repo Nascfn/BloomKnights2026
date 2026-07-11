@@ -1,0 +1,12 @@
+{
+  "name": "whoownsit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm install --prefix client && npm install --prefix server",
+    "dev": "concurrently -n client,server \"npm run dev --prefix client\" \"npm run dev --prefix server\""
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
