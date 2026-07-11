@@ -1,6 +1,10 @@
 import { useState } from "react";
 import ScanScreen from "./components/ScanScreen";
 import LoadingScreen from "./components/LoadingScreen";
+import ResultScreen from "./components/ResultScreen";
+import PrivateScreen from "./components/PrivateScreen";
+import ForeignScreen from "./components/ForeignScreen";
+import RetryScreen from "./components/RetryScreen";
 import { analyzeImage } from "./api/client.js";
 
 function App() {
@@ -31,39 +35,17 @@ function App() {
 }
 
 function DoneState({ result, onReset }) {
-  const status = result?.status;
-
-  // Placeholders until the dedicated screens land:
-  // US_PUBLIC -> ResultScreen (#20), PRIVATE/FOREIGN -> their screens (#15).
-  if (status === "US_PUBLIC" || status === "PRIVATE" || status === "FOREIGN") {
-    return <ResultPlaceholder result={result} onReset={onReset} />;
+  switch (result?.status) {
+    case "US_PUBLIC":
+      return <ResultScreen result={result} onReset={onReset} />;
+    case "PRIVATE":
+      return <PrivateScreen result={result} onReset={onReset} />;
+    case "FOREIGN":
+      return <ForeignScreen result={result} onReset={onReset} />;
+    default:
+      // UNIDENTIFIABLE, ERROR, TICKER_NOT_VERIFIED, or anything unexpected.
+      return <RetryScreen result={result} onReset={onReset} />;
   }
-
-  // UNIDENTIFIABLE, ERROR, TICKER_NOT_VERIFIED, or anything unexpected.
-  return <RetryPlaceholder result={result} onReset={onReset} />;
-}
-
-function ResultPlaceholder({ result, onReset }) {
-  return (
-    <section className="card result-stack">
-      <pre>{JSON.stringify(result, null, 2)}</pre>
-      <button type="button" className="primary" onClick={onReset}>
-        Scan another product
-      </button>
-    </section>
-  );
-}
-
-function RetryPlaceholder({ result, onReset }) {
-  return (
-    <section className="card result-stack">
-      <p>{result?.message || "We could not identify this product. Try another scan."}</p>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
-      <button type="button" className="primary" onClick={onReset}>
-        Scan again
-      </button>
-    </section>
-  );
 }
 
 export default App;
