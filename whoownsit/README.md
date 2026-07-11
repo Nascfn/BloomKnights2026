@@ -27,6 +27,15 @@ cp server/.env.example server/.env
 npm run dev                       # client :5173 + API :5001
 ```
 
+## Deploying (DigitalOcean App Platform)
+
+The app spec lives at [`.do/app.yaml`](../.do/app.yaml) — DO picks it up when you create the app from this GitHub repo, and every push to `main` auto-deploys.
+
+1. DO dashboard → Apps → Create App → this repo (it reads `.do/app.yaml`: static client + `/api` service)
+2. First deploy runs in **mock mode** with no keys — verify a scan returns the PepsiCo mock
+3. Add `GEMINI_API_KEY` + `FMP_API_KEY` as **encrypted** env vars on the `api` component, set `MOCK_MODE=false` → it redeploys live
+4. Notes: the ticker cache is wiped on each deploy (refills from FMP on demand), and every live scan on the public URL costs a Gemini call — don't post the link publicly
+
 ## Rules of the road
 
 - Secrets live **only** in `server/.env` (gitignored). The client never sees keys.

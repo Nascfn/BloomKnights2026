@@ -1,0 +1,59 @@
+# DigitalOcean App Platform spec for WhoOwnsIt.
+# Import via: DO dashboard → Apps → Create App → GitHub repo (it auto-detects
+# this file), or `doctl apps create --spec .do/app.yaml`.
+#
+# After creating the app, add the two secrets in the dashboard
+# (app → Settings → api component → Environment Variables):
+#   GEMINI_API_KEY  (encrypted)
+#   FMP_API_KEY     (encrypted)
+# then set MOCK_MODE=false to go live. First deploy works in mock mode
+# with no keys at all.
+
+name: whoownsit
+region: nyc
+
+static_sites:
+  - name: web
+    github:
+      repo: Nascfn/BloomKnights2026
+      branch: main
+      deploy_on_push: true
+    source_dir: whoownsit/client
+    build_command: npm ci && npm run build
+    output_dir: dist
+
+services:
+  - name: api
+    github:
+      repo: Nascfn/BloomKnights2026
+      branch: main
+      deploy_on_push: true
+    source_dir: whoownsit/server
+    run_command: npm start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    http_port: 8080
+    health_check:
+      http_path: /api/health
+    envs:
+      - key: MOCK_MODE
+        value: "true"
+        scope: RUN_TIME
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+        scope: RUN_TIME
+
+ingress:
+  rules:
+    - match:
+        path:
+          prefix: /api
+      component:
+        name: api
+        preserve_path_prefix: true
+    - match:
+        path:
+          prefix: /
+      component:
+        name: web
