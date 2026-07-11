@@ -1,3 +1,5 @@
+import OwnershipChain from "./OwnershipChain";
+
 function ForeignScreen({ result, onReset }) {
   const {
     ownership_chain: chain,
@@ -14,16 +16,7 @@ function ForeignScreen({ result, onReset }) {
         {ultimateParent} is not US-listed ({country})
       </h1>
 
-      <div>
-        {chain.map((name, index) => (
-          <span
-            key={name}
-            className={index === chain.length - 1 ? "pill pill-final" : "pill"}
-          >
-            {name}
-          </span>
-        ))}
-      </div>
+      <OwnershipChain chain={chain} />
 
       {licensingNote && (
         <div>

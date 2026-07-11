@@ -213,6 +213,83 @@ input[type="text"] {
   }
 }
 
+.ownership-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ownership-chain-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--muted-foreground);
+  font-weight: 700;
+}
+
+.company-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--background);
+}
+
+.company-card-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.company-logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--card);
+}
+
+.company-logo-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--tea-green);
+  color: var(--foreground);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.company-name {
+  margin: 0;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.company-meta {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.company-price {
+  text-align: right;
+}
+
+.company-price-big {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.company-price-date {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
 /* Temporary JSON placeholders in App.jsx until the result screens land (#15, #20) */
 
 .result-stack {
