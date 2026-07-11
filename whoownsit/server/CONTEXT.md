@@ -9,7 +9,7 @@ This is an **Express** server. NOT Python, NOT Flask — any doc mentioning
 - `index.js` — entry: dotenv, Express app, `express.json()`, mount `routes/analyze.js`
   at `/api`, listen on `process.env.PORT || 5001`. Dev: `node --watch index.js`.
 - `.env` (gitignored) / `.env.example` — `GEMINI_API_KEY`, `FMP_API_KEY`,
-  `GEMINI_MODEL=gemini-2.5-flash`, `MOCK_MODE=true`, `PORT=5001`.
+  `GEMINI_MODEL=gemini-3.5-flash`, `MOCK_MODE=true`, `PORT=5001`.
 - `routes/analyze.js` — the orchestrator; owns the frozen contract below.
 - `services/gemini.js`, `services/fmp.js` — external world (see `services/CONTEXT.md`).
 - `utils/dca.js` — canonical DCA math: `firstTradingDays(daily)` (first row of each of
