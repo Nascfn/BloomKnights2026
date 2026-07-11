@@ -21,11 +21,13 @@ function App() {
       .catch(() => {});
   }, []);
 
-  async function handleScan(file, monthly) {
+  async function handleScan(file) {
     setPhase("loading");
     setResult(null);
 
-    const analysis = await analyzeImage(file, monthly);
+    // The DCA slider on the result screen recomputes client-side, so the
+    // initial server-computed amount is just a sensible default.
+    const analysis = await analyzeImage(file, 100);
     setResult(analysis);
     setPhase("done");
   }

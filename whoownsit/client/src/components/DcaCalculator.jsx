@@ -3,7 +3,7 @@ import { dcaResult } from "../utils/dca.js";
 
 function clampToSlider(value) {
   if (!Number.isFinite(value)) return 100;
-  return Math.min(1000, Math.max(25, value));
+  return Math.min(200, Math.max(1, value));
 }
 
 function money(n) {
@@ -24,9 +24,9 @@ function DcaCalculator({ monthlyBuys, sharePrice, initialMonthly = 100 }) {
       <div className="dca-slider-row">
         <input
           type="range"
-          min="25"
-          max="1000"
-          step="25"
+          min="1"
+          max="200"
+          step="1"
           value={monthly}
           onChange={(event) => setMonthly(Number(event.target.value))}
           aria-label="Monthly investment in dollars"
