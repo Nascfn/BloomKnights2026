@@ -100,7 +100,13 @@ h1 {
   line-height: 0.95;
 }
 
-.scan-card {
+.page {
+  display: grid;
+  width: min(100%, 640px);
+  gap: 1.25rem;
+}
+
+.brand-header {
   position: relative;
 }
 
@@ -110,7 +116,7 @@ h1 {
   transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.scan-card.is-compact .brand-stage {
+.brand-header.is-compact .brand-stage {
   height: 44px;
 }
 
@@ -128,7 +134,7 @@ h1 {
     transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.scan-card.is-compact .brand-stage .logo {
+.brand-header.is-compact .brand-stage .logo {
   top: 0;
   left: 0;
   width: 40px;
@@ -148,7 +154,7 @@ h1 {
     transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.scan-card.is-compact .brand-copy {
+.brand-header.is-compact .brand-copy {
   top: 8px;
   left: 52px;
   transform: translateX(0);
@@ -162,7 +168,7 @@ h1 {
   transition: font-size 0.4s ease;
 }
 
-.scan-card.is-compact .brand-title {
+.brand-header.is-compact .brand-title {
   font-size: 1.15rem;
   line-height: 1.2;
 }
