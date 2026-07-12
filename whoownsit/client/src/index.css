@@ -1383,7 +1383,7 @@ pre {
   color: var(--forest-mid);
 }
 .chain-icon.tone-d {
-  background: rgba(213, 183, 198, 0.3);
+  background: #e5e1e4;
   color: var(--accent-foreground);
 }
 
