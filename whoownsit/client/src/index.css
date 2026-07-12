@@ -1302,12 +1302,14 @@ pre {
   gap: 1rem;
 }
 
-.chain::before {
+/* Connector segments between icons — the last row draws none, because the
+   chain ends at the parent company. */
+.chain-row:not(:last-child)::before {
   content: "";
   position: absolute;
   left: 20px;
-  top: 8px;
-  bottom: 40px;
+  top: 42px;
+  bottom: -1rem;
   width: 1px;
   background: linear-gradient(to bottom, var(--muted-olive), var(--tea-green));
 }
