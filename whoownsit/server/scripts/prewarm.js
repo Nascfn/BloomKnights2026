@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 
-const { getProfile, getDailyHistory } = await import('../services/fmp.js');
+const { getProfile, getDailyHistory, getStockNews, getRevenueSegments } = await import('../services/fmp.js');
 const { getCached, setCached } = await import('../utils/cache.js');
 const { firstTradingDays } = await import('../utils/dca.js');
 
@@ -23,15 +23,18 @@ let ok = 0;
 let failed = 0;
 
 for (const ticker of TICKERS) {
-  if (getCached(ticker)) {
+  const cached = getCached(ticker);
+  if (cached && 'news' in cached) {
     console.log(`${ticker}: already cached today`);
     ok++;
     continue;
   }
 
-  const [profile, daily] = await Promise.all([
+  const [profile, daily, news, segments] = await Promise.all([
     getProfile(ticker),
     getDailyHistory(ticker),
+    getStockNews(ticker),
+    getRevenueSegments(ticker),
   ]);
 
   if (!profile || !daily) {
@@ -55,6 +58,8 @@ for (const ticker of TICKERS) {
     as_of: latest.date,
     chart: daily.slice(-260),
     monthly_buys: firstTradingDays(daily),
+    news,
+    revenue_segments: segments,
   });
   console.log(`${ticker}: cached ${daily.length} days @ ${latest.price}`);
   ok++;

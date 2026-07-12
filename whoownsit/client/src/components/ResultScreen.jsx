@@ -2,63 +2,43 @@ import { useMemo, useState } from "react";
 import PriceChart from "./PriceChart";
 import { dcaResult } from "../utils/dca.js";
 
-const TABS = ["OVERVIEW", "NEWS", "CHAIN", "INVEST"];
+// ── Formatting helpers for real FMP data ──
+function bigMoney(n) {
+  if (n == null) return null;
+  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  return `$${Math.round(n).toLocaleString()}`;
+}
 
-// ── Placeholder data (no backend source — illustrative, matches the design) ──
-const SAMPLE_STATS = [
-  { label: "MKT CAP", value: "$235.8B" },
-  { label: "P/E", value: "23.4×" },
-  { label: "DIV YIELD", value: "3.1%" },
-  { label: "52W HIGH", value: "$182.10" },
-  { label: "52W LOW", value: "$154.30" },
-  { label: "AVG VOL", value: "5.2M" },
-];
+function bigCount(n) {
+  if (n == null) return null;
+  if (n >= 1e9) return `${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
+  return `${n}`;
+}
 
-const SAMPLE_NEWS = [
-  {
-    id: 1,
-    sentiment: "positive",
-    source: "Bloomberg",
-    time: "2h ago",
-    headline: "PepsiCo Raises Annual Guidance After Strong Q2 Beat",
-    summary:
-      "Q2 EPS of $2.28 topped analyst expectations of $2.15, driven by pricing power in North America and resilient snack demand in international markets.",
-  },
-  {
-    id: 2,
-    sentiment: "positive",
-    source: "Reuters",
-    time: "8h ago",
-    headline: "PepsiCo Expands Zero-Sugar Portfolio Across 40 New Markets",
-    summary:
-      "CEO Ramon Laguarta confirmed aggressive global rollout of Pepsi Zero Sugar and Lipton Zero as health-conscious consumer demand accelerates in developing markets.",
-  },
-  {
-    id: 3,
-    sentiment: "neutral",
-    source: "WSJ",
-    time: "1d ago",
-    headline: "Elliott Management Builds $1.5B Stake in PepsiCo",
-    summary:
-      "Activist investor Elliott Management has accumulated a significant position and is reportedly pushing for operational efficiency improvements and portfolio streamlining.",
-  },
-  {
-    id: 4,
-    sentiment: "negative",
-    source: "FT",
-    time: "2d ago",
-    headline: "Tropicana Revenue Falls 4% Amid Orange Price Surge",
-    summary:
-      "Florida crop damage has pushed orange concentrate prices to multi-decade highs, squeezing Tropicana Brands Group margins for the third consecutive quarter.",
-  },
-];
+function timeAgo(published) {
+  const t = Date.parse((published || "").replace(" ", "T"));
+  if (Number.isNaN(t)) return "";
+  const mins = Math.max(1, Math.round((Date.now() - t) / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60 * 24) return `${Math.round(mins / 60)}h ago`;
+  return `${Math.round(mins / (60 * 24))}d ago`;
+}
 
-const SAMPLE_HOLDERS = [
-  { name: "Vanguard Group", pct: "8.4%" },
-  { name: "BlackRock Inc.", pct: "7.1%" },
-  { name: "State Street", pct: "4.2%" },
-  { name: "Other Inst.", pct: "51.7%" },
-];
+// Real stat tiles from the company profile; tiles with no data are dropped.
+function companyStats(company) {
+  return [
+    { label: "MKT CAP", value: bigMoney(company.market_cap) },
+    { label: "52W RANGE", value: company.range_52w ? `$${company.range_52w}` : null },
+    { label: "AVG VOL", value: bigCount(company.average_volume) },
+    { label: "BETA", value: company.beta != null ? company.beta.toFixed(2) : null },
+    { label: "DIV / SHR", value: company.last_dividend != null ? `$${company.last_dividend.toFixed(2)}` : null },
+    { label: "SECTOR", value: company.sector },
+  ].filter((s) => s.value);
+}
 
 // ── Icons ──
 const iconProps = {
@@ -88,13 +68,6 @@ const BuildingIcon = () => (
     <path d="M9 7h.01M13 7h.01M9 11h.01M13 11h.01M9 15h2" />
   </svg>
 );
-const UsersIcon = () => (
-  <svg {...iconProps}>
-    <circle cx="9" cy="8" r="3" />
-    <path d="M15 8a3 3 0 0 1 0 6M3 20c0-2.8 2.7-5 6-5s6 2.2 6 5M17 20c0-1.6-.5-3-1.5-4" />
-  </svg>
-);
-
 function ProductThumb({ photoUrl, company }) {
   const [failed, setFailed] = useState(false);
   const src = !failed ? photoUrl || company.logo_url : null;
@@ -121,7 +94,7 @@ function OverviewTab({ result }) {
         <p className="panel-body">{summary}</p>
         <div className="panel-divider" />
         <div className="stat-grid stat-grid-3">
-          {SAMPLE_STATS.map(({ label, value }) => (
+          {companyStats(result.company).map(({ label, value }) => (
             <div key={label} className="stat">
               <div className="stat-label">{label}</div>
               <div className="stat-value">{value}</div>
@@ -141,27 +114,82 @@ function OverviewTab({ result }) {
   );
 }
 
-function NewsTab() {
+function NewsTab({ news, companyName }) {
+  if (!news?.length) {
+    return (
+      <div className="tab-stack">
+        <span className="panel-label">Recent news</span>
+        <div className="panel">
+          <p className="panel-body">No recent headlines available for {companyName}.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="tab-stack">
       <div className="tab-heading">
-        <span className="panel-label">Recent major news</span>
-        <span className="sample-tag">Illustrative sample</span>
+        <span className="panel-label">Recent news</span>
+        <span className="sample-tag">Live · Financial Modeling Prep</span>
       </div>
-      {SAMPLE_NEWS.map((item) => (
-        <article key={item.id} className="news-card">
+      {news.map((item) => (
+        <article key={item.url || item.headline} className="news-card">
           <div className="news-top">
-            <span className={`sentiment sentiment-${item.sentiment}`}>
-              {item.sentiment.toUpperCase()}
-            </span>
             <span className="news-source">
-              <strong>{item.source}</strong> {item.time}
+              <strong>{item.source}</strong> {timeAgo(item.published)}
             </span>
           </div>
-          <h3 className="news-headline">{item.headline}</h3>
-          <p className="news-summary">{item.summary}</p>
+          <h3 className="news-headline">
+            {item.url ? (
+              <a href={item.url} target="_blank" rel="noopener noreferrer">
+                {item.headline}
+              </a>
+            ) : (
+              item.headline
+            )}
+          </h3>
+          <p className="news-summary">{item.summary}…</p>
         </article>
       ))}
+    </div>
+  );
+}
+
+function SegmentsTab({ revenueSegments, companyName }) {
+  const { fiscal_year, total_revenue, segments } = revenueSegments;
+  return (
+    <div className="tab-stack">
+      <div className="tab-heading">
+        <span className="panel-label">
+          Revenue by segment · FY{fiscal_year}
+        </span>
+        <span className="sample-tag">Live · Financial Modeling Prep</span>
+      </div>
+      <div className="panel">
+        <p className="panel-body">
+          {companyName} reported {bigMoney(total_revenue)} in FY{fiscal_year} revenue. Here's
+          which parts of the business it came from:
+        </p>
+        <div className="panel-divider" />
+        <div className="segments">
+          {segments.map((seg, i) => (
+            <div key={seg.name} className="segment">
+              <div className="segment-top">
+                <span className="segment-name">{seg.name}</span>
+                <span className="segment-figures">
+                  {bigMoney(seg.revenue)} <strong>({seg.pct}%)</strong>
+                </span>
+              </div>
+              <div className="segment-track">
+                <div
+                  className={`segment-bar${i === 0 ? " segment-bar-top" : ""}`}
+                  style={{ width: `${Math.max(seg.pct, 2)}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -203,25 +231,6 @@ function ChainTab({ result }) {
             </div>
           </div>
         ))}
-
-        <div className="chain-row">
-          <div className="chain-icon tone-d">
-            <UsersIcon />
-          </div>
-          <div className="chain-card">
-            <div className="chain-tag">PUBLIC SHAREHOLDERS</div>
-            <div className="chain-name">Institutional + Retail Holders</div>
-            <div className="chain-detail">Illustrative sample · not live data</div>
-            <div className="chain-holders">
-              {SAMPLE_HOLDERS.map((h) => (
-                <div key={h.name} className="chain-holder">
-                  <span>{h.name}</span>
-                  <span className="chain-holder-pct">{h.pct}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -322,9 +331,30 @@ function InvestTab({ result }) {
   );
 }
 
+function CompanyLogo({ company }) {
+  const [failed, setFailed] = useState(false);
+  if (company.logo_url && !failed) {
+    return (
+      <img
+        src={company.logo_url}
+        alt={`${company.company_name} logo`}
+        className="banner-logo"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+  return (
+    <div className="banner-logo banner-logo-fallback" aria-hidden="true">
+      {company.company_name.charAt(0)}
+    </div>
+  );
+}
+
 function ResultScreen({ result, onReset, photoUrl }) {
   const [tab, setTab] = useState("OVERVIEW");
   const { company } = result;
+
+  const tabs = ["OVERVIEW", "NEWS", "CHAIN", ...(result.revenue_segments ? ["SEGMENTS"] : []), "INVEST"];
 
   const prev = result.chart?.[result.chart.length - 2]?.price ?? result.share_price;
   const change = result.share_price - prev;
@@ -351,11 +381,14 @@ function ResultScreen({ result, onReset, photoUrl }) {
 
         <div className="company-banner">
           <div className="company-banner-top">
-            <div>
-              <div className="banner-eyebrow">Parent company</div>
-              <div className="banner-company">{company.company_name}</div>
-              <div className="banner-meta">
-                {company.exchange}: {result.ticker} · {company.sector}
+            <div className="banner-identity">
+              <CompanyLogo company={company} />
+              <div>
+                <div className="banner-eyebrow">Parent company</div>
+                <div className="banner-company">{company.company_name}</div>
+                <div className="banner-meta">
+                  {company.exchange}: {result.ticker} · {company.sector}
+                </div>
               </div>
             </div>
             <div className="banner-price">
@@ -368,7 +401,7 @@ function ResultScreen({ result, onReset, photoUrl }) {
           </div>
           <div className="banner-divider" />
           <div className="stat-grid stat-grid-3">
-            {SAMPLE_STATS.slice(0, 3).map(({ label, value }) => (
+            {companyStats(company).slice(0, 3).map(({ label, value }) => (
               <div key={label} className="stat">
                 <div className="stat-label">{label}</div>
                 <div className="stat-value">{value}</div>
@@ -379,7 +412,7 @@ function ResultScreen({ result, onReset, photoUrl }) {
       </div>
 
       <nav className="scan-tabs" role="tablist">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t}
             type="button"
@@ -395,8 +428,11 @@ function ResultScreen({ result, onReset, photoUrl }) {
 
       <div className="scan-tab-content">
         {tab === "OVERVIEW" && <OverviewTab result={result} />}
-        {tab === "NEWS" && <NewsTab />}
+        {tab === "NEWS" && <NewsTab news={result.news} companyName={company.company_name} />}
         {tab === "CHAIN" && <ChainTab result={result} />}
+        {tab === "SEGMENTS" && result.revenue_segments && (
+          <SegmentsTab revenueSegments={result.revenue_segments} companyName={company.company_name} />
+        )}
         {tab === "INVEST" && <InvestTab result={result} />}
       </div>
     </div>

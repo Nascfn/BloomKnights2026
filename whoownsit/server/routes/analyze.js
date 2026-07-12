@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { firstTradingDays, dcaResult } from '../utils/dca.js';
 import { identifyOwner } from '../services/gemini.js';
-import { getProfile, getDailyHistory } from '../services/fmp.js';
+import { getProfile, getDailyHistory, getStockNews, getRevenueSegments } from '../services/fmp.js';
 import { getCached, setCache } from '../utils/cache.js';
 
 // 15MB covers even 48MP iPhone photos (~8–12MB) with headroom, and stays
@@ -98,13 +98,17 @@ router.post('/analyze', rateLimitScans, uploadImage, async (req, res) => {
       return res.json(identityFields(gemini));
     }
 
-    // US_PUBLIC — same-day cache, else FMP.
+    // US_PUBLIC — same-day cache, else FMP. Payloads cached before the
+    // news/segments fields existed are treated as misses so they upgrade.
     let payload = getCached(gemini.ticker);
+    if (payload && !('news' in payload)) payload = null;
 
     if (!payload) {
-      const [profile, daily] = await Promise.all([
+      const [profile, daily, news, segments] = await Promise.all([
         getProfile(gemini.ticker),
         getDailyHistory(gemini.ticker),
+        getStockNews(gemini.ticker),
+        getRevenueSegments(gemini.ticker),
       ]);
 
       if (!profile || !daily) {
@@ -122,6 +126,8 @@ router.post('/analyze', rateLimitScans, uploadImage, async (req, res) => {
         as_of: latest.date,
         chart: daily.slice(-260),
         monthly_buys: firstTradingDays(daily),
+        news, // [] when unavailable — never blocks the scan
+        revenue_segments: segments, // null when unavailable
       };
       if (!isStaleQuote(payload.as_of)) {
         setCache(gemini.ticker, payload);
@@ -153,6 +159,8 @@ router.post('/analyze', rateLimitScans, uploadImage, async (req, res) => {
       as_of: payload.as_of,
       chart: payload.chart,
       monthly_buys: payload.monthly_buys,
+      news: payload.news ?? [],
+      revenue_segments: payload.revenue_segments ?? null,
       dca: dcaResult(monthly, payload.monthly_buys, payload.share_price),
     });
   } catch (err) {
