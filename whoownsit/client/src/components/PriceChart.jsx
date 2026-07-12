@@ -1,12 +1,17 @@
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
-  Line,
-  LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+
+const OLIVE = "#95b355";
+const GRID = "rgba(149, 179, 85, 0.15)";
+const AXIS = "#5a7040";
 
 function formatTick(date) {
   return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -20,49 +25,65 @@ function formatTooltipLabel(date) {
   });
 }
 
-function formatPrice(price) {
-  return `$${price.toFixed(2)}`;
+function ChartTip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="chart-tip">
+      <div className="chart-tip-label">{formatTooltipLabel(label)}</div>
+      <div className="chart-tip-value">${payload[0].value.toFixed(2)}</div>
+    </div>
+  );
 }
 
-function PriceChart({ chart }) {
+function PriceChart({ chart, height = 200, showAxes = true, entryDate }) {
   if (!chart?.length) return null;
 
-  const trendColor = chart[chart.length - 1].price >= chart[0].price ? "var(--gain)" : "var(--loss)";
+  const prices = chart.map((p) => p.price);
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <LineChart data={chart} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="var(--border)" vertical={false} />
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={chart} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={OLIVE} stopOpacity={0.25} />
+            <stop offset="100%" stopColor={OLIVE} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="2 6" stroke={GRID} />
         <XAxis
           dataKey="date"
+          hide={!showAxes}
           tickFormatter={formatTick}
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-          axisLine={{ stroke: "var(--border)" }}
-          tickLine={{ stroke: "var(--border)" }}
-          minTickGap={40}
+          tick={{ fill: AXIS, fontSize: 10, fontFamily: "JetBrains Mono" }}
+          axisLine={false}
+          tickLine={false}
+          minTickGap={48}
         />
         <YAxis
-          domain={["auto", "auto"]}
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-          axisLine={{ stroke: "var(--border)" }}
-          tickLine={{ stroke: "var(--border)" }}
-          tickFormatter={formatPrice}
-          width={64}
+          hide={!showAxes}
+          domain={[min - 4, max + 4]}
+          tick={{ fill: AXIS, fontSize: 10, fontFamily: "JetBrains Mono" }}
+          axisLine={false}
+          tickLine={false}
+          width={46}
+          tickFormatter={(v) => `$${v.toFixed(0)}`}
         />
-        <Tooltip
-          labelFormatter={formatTooltipLabel}
-          formatter={(price) => [formatPrice(price), "Price"]}
-          contentStyle={{
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: 8,
-            color: "var(--foreground)",
-          }}
-          labelStyle={{ color: "var(--muted-foreground)", fontWeight: 600 }}
-          itemStyle={{ color: "var(--foreground)" }}
+        <Tooltip content={<ChartTip />} />
+        {entryDate && (
+          <ReferenceLine x={entryDate} stroke="#d5b7c6" strokeDasharray="3 4" strokeWidth={1.5} />
+        )}
+        <Area
+          type="monotone"
+          dataKey="price"
+          stroke={OLIVE}
+          strokeWidth={2}
+          fill="url(#priceFill)"
+          dot={false}
+          activeDot={{ r: 3, fill: OLIVE, strokeWidth: 0 }}
         />
-        <Line type="monotone" dataKey="price" stroke={trendColor} strokeWidth={2} dot={false} />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 }
