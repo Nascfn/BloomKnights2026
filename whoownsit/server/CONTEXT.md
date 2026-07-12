@@ -37,9 +37,13 @@ One JSON object; client switches UI on `status`:
 
 - `US_PUBLIC`: `status, product_name, brand, ownership_chain[], ultimate_parent, ticker,
   licensing_note, summary, company {company_name, price, exchange, sector, logo_url,
-  description}, share_price, as_of, chart[] ({date, price}, last 260 daily points),
-  monthly_buys[] (12 first-trading-day points), dca {monthly_amount, months,
-  total_invested, shares_owned, current_value, profit, return_pct, note}`
+  description, market_cap, beta, average_volume, range_52w, last_dividend},
+  share_price, as_of, chart[] ({date, price}, last 260 daily points),
+  monthly_buys[] (12 first-trading-day points),
+  news[] ({source, published, headline, summary, url} — [] when unavailable),
+  revenue_segments {fiscal_year, total_revenue, segments[{name, revenue, pct}]} | null,
+  dca {monthly_amount, months, total_invested, shares_owned, current_value, profit,
+  return_pct, note}`
 - `PRIVATE` / `FOREIGN`: ONLY `status, product_name, brand, ownership_chain,
   ultimate_parent, country, licensing_note, summary`
 - `UNIDENTIFIABLE`: `status` + fixed `message` ("Couldn't identify a branded product —
