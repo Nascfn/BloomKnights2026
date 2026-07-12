@@ -97,8 +97,9 @@ function ScanScreen({ onScan }) {
             You Buy
           </h1>
           <p className="hero-subtitle">
-            Scan any grocery product to uncover who owns it, how their stock is
-            performing, and what it would mean for your portfolio.
+            Snap a photo of any product to reveal the company that really owns
+            it — the full ownership chain, live market data, and what a few
+            dollars a month invested last year would be worth today.
           </p>
 
           <div className="hero-form">
