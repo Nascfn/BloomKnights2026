@@ -10,10 +10,17 @@ import { analyzeImage } from "./api/client.js";
 function App() {
   const [phase, setPhase] = useState("scan");
   const [result, setResult] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState(null);
 
   async function handleScan(file) {
     setPhase("loading");
     setResult(null);
+
+    // Keep a local preview of the scanned photo to show on the result screen.
+    setPhotoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
 
     // The DCA slider on the result screen recomputes client-side, so the
     // initial server-computed amount is just a sensible default.
@@ -23,6 +30,10 @@ function App() {
   }
 
   function handleReset() {
+    setPhotoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setResult(null);
     setPhase("scan");
   }
@@ -37,10 +48,16 @@ function App() {
     );
   }
 
+  const isFullWidth = phase === "done" && result?.status === "US_PUBLIC";
+
   return (
     <main className="app-shell">
       <header className="nav app-header">
         <div className="nav-brand">
+          <button type="button" className="nav-home" onClick={handleReset}>
+            ‹ Home
+          </button>
+          <span className="nav-divider" aria-hidden="true" />
           <img src="/logo.png" alt="" className="nav-logo" />
           <span className="nav-wordmark">Who Owns It?</span>
         </div>
@@ -50,20 +67,22 @@ function App() {
         </span>
       </header>
 
-      <div className="page-wrap">
-        <div className="page">
-          {phase === "loading" && <LoadingScreen />}
-          {phase === "done" && <DoneState result={result} onReset={handleReset} />}
+      {isFullWidth ? (
+        <ResultScreen result={result} onReset={handleReset} photoUrl={photoUrl} />
+      ) : (
+        <div className="page-wrap">
+          <div className="page">
+            {phase === "loading" && <LoadingScreen />}
+            {phase === "done" && <DoneState result={result} onReset={handleReset} />}
+          </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }
 
 function DoneState({ result, onReset }) {
   switch (result?.status) {
-    case "US_PUBLIC":
-      return <ResultScreen result={result} onReset={onReset} />;
     case "PRIVATE":
       return <PrivateScreen result={result} onReset={onReset} />;
     case "FOREIGN":
