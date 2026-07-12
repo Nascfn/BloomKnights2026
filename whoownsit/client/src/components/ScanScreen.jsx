@@ -48,6 +48,13 @@ const FEATURES = [
   },
 ];
 
+const TEAM = [
+  { name: "Sanjay Parsam", url: "https://www.linkedin.com/in/sanjay-parsam/" },
+  { name: "Paulo Fernandes Nascimento", url: "https://www.linkedin.com/in/paulofn/" },
+  { name: "Ana Clara Machado Goncalves", url: "https://www.linkedin.com/in/anaaclra04/" },
+  { name: "Nicole Gonzalez", url: "https://www.linkedin.com/in/nicole-gonzalez-42638b298/" },
+];
+
 function ScanScreen({ onScan }) {
   const fileInputRef = useRef(null);
 
@@ -150,11 +157,34 @@ function ScanScreen({ onScan }) {
         </button>
       </section>
 
-      <footer className="landing-footer">
-        <img src="/logo.png" alt="" className="footer-logo" />
-        <span className="footer-text">
-          Who Owns It? · Powered by Detective Lenny © 2026
-        </span>
+      <footer className="landing-footer" aria-labelledby="about-title">
+        <div className="footer-brand">
+          <img src="/logo.png" alt="" className="footer-logo" />
+          <span className="footer-text">
+            Who Owns It? · Powered by Detective Lenny © 2026
+          </span>
+        </div>
+
+        <p id="about-title" className="footer-tagline">
+          About the Team.
+        </p>
+
+        <p className="footer-credits">
+          Built by{" "}
+          {TEAM.map(({ name, url }, i) => (
+            <span key={url}>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-credit-link"
+              >
+                {name}
+              </a>
+              {i < TEAM.length - 1 ? (i === TEAM.length - 2 ? ", and " : ", ") : "."}
+            </span>
+          ))}
+        </p>
       </footer>
     </>
   );
