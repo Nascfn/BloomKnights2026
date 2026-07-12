@@ -5,8 +5,48 @@ import { identifyOwner } from '../services/gemini.js';
 import { getProfile, getDailyHistory } from '../services/fmp.js';
 import { getCached, setCache } from '../utils/cache.js';
 
-const upload = multer({ storage: multer.memoryStorage() });
+// 15MB covers even 48MP iPhone photos (~8–12MB) with headroom, and stays
+// under Gemini's ~20MB inline-request cap. Anything bigger is not a photo.
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_IMAGE_BYTES },
+});
 const router = Router();
+
+// Rate limit: each scan costs a paid Gemini call, so cap scans per client.
+const SCAN_LIMIT = 5;
+const SCAN_WINDOW_MS = 60 * 1000;
+const scanHits = new Map(); // ip -> [timestamps]
+
+function rateLimitScans(req, res, next) {
+  const now = Date.now();
+  const ip = req.ip || 'unknown';
+  const hits = (scanHits.get(ip) || []).filter((t) => now - t < SCAN_WINDOW_MS);
+  if (hits.length >= SCAN_LIMIT) {
+    return res
+      .status(429)
+      .json({ status: 'ERROR', message: 'Too many scans — wait a minute and try again.' });
+  }
+  hits.push(now);
+  scanHits.set(ip, hits);
+  if (scanHits.size > 10000) scanHits.clear(); // crude memory guard
+  next();
+}
+
+// Wrap multer so its errors (e.g. file too large) return friendly JSON
+// instead of a raw stack-flavored 500.
+function uploadImage(req, res, next) {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      return res
+        .status(400)
+        .json({ status: 'ERROR', message: 'Image upload failed — use a photo under 15MB.' });
+    }
+    next();
+  });
+}
 
 const UNIDENTIFIABLE_MESSAGE =
   "Couldn't identify a branded product — try again with the logo or packaging clearly in frame.";
@@ -38,10 +78,16 @@ router.get('/health', (req, res) => {
   res.json({ ok: true });
 });
 
-router.post('/analyze', upload.single('image'), async (req, res) => {
+router.post('/analyze', rateLimitScans, uploadImage, async (req, res) => {
   const monthly = Number(req.query.monthly) || 100;
 
   try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ status: 'ERROR', message: 'No image received — attach a photo and try again.' });
+    }
+
     const gemini = await identifyOwner(req.file.buffer, req.file.mimetype);
 
     if (gemini.status === 'UNIDENTIFIABLE') {
@@ -110,7 +156,11 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
       dca: dcaResult(monthly, payload.monthly_buys, payload.share_price),
     });
   } catch (err) {
-    res.status(500).json({ status: 'ERROR', message: err.message });
+    // Log the real error server-side; never echo internals to the client.
+    console.error('analyze failed:', err);
+    res
+      .status(500)
+      .json({ status: 'ERROR', message: 'Something went wrong on our side — please try again.' });
   }
 });
 
