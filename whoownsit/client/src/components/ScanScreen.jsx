@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 const FEATURES = [
   {
@@ -50,17 +50,12 @@ const FEATURES = [
 
 function ScanScreen({ onScan }) {
   const fileInputRef = useRef(null);
-  const [file, setFile] = useState(null);
-  const hasFile = Boolean(file);
 
+  // Picking a photo starts the scan immediately — no second click.
   const handleFileChange = (event) => {
-    setFile(event.target.files?.[0] ?? null);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (!file) return;
-    onScan(file);
+    const picked = event.target.files?.[0];
+    event.target.value = ""; // so re-picking the same file still fires
+    if (picked) onScan(picked);
   };
 
   const openPicker = () => fileInputRef.current?.click();
@@ -99,7 +94,7 @@ function ScanScreen({ onScan }) {
             performing, and what it would mean for your portfolio.
           </p>
 
-          <form onSubmit={handleSubmit} className="hero-form">
+          <div className="hero-form">
             <input
               ref={fileInputRef}
               type="file"
@@ -109,17 +104,10 @@ function ScanScreen({ onScan }) {
               hidden
             />
 
-            {hasFile && <p className="hero-filename">{file.name}</p>}
-
-            <button
-              type={hasFile ? "submit" : "button"}
-              className="hero-cta"
-              onClick={hasFile ? undefined : openPicker}
-            >
-              {hasFile ? "Scan now" : "Start scanning"}{" "}
-              <span aria-hidden="true">→</span>
+            <button type="button" className="hero-cta" onClick={openPicker}>
+              Start scanning <span aria-hidden="true">→</span>
             </button>
-          </form>
+          </div>
 
           <p className="hero-caption">No account needed · Free to use</p>
         </div>

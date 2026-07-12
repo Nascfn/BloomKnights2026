@@ -40,13 +40,6 @@ function companyStats(company) {
   ].filter((s) => s.value);
 }
 
-const SAMPLE_HOLDERS = [
-  { name: "Vanguard Group", pct: "8.4%" },
-  { name: "BlackRock Inc.", pct: "7.1%" },
-  { name: "State Street", pct: "4.2%" },
-  { name: "Other Inst.", pct: "51.7%" },
-];
-
 // ── Icons ──
 const iconProps = {
   viewBox: "0 0 24 24",
@@ -75,13 +68,6 @@ const BuildingIcon = () => (
     <path d="M9 7h.01M13 7h.01M9 11h.01M13 11h.01M9 15h2" />
   </svg>
 );
-const UsersIcon = () => (
-  <svg {...iconProps}>
-    <circle cx="9" cy="8" r="3" />
-    <path d="M15 8a3 3 0 0 1 0 6M3 20c0-2.8 2.7-5 6-5s6 2.2 6 5M17 20c0-1.6-.5-3-1.5-4" />
-  </svg>
-);
-
 function ProductThumb({ photoUrl, company }) {
   const [failed, setFailed] = useState(false);
   const src = !failed ? photoUrl || company.logo_url : null;
@@ -245,25 +231,6 @@ function ChainTab({ result }) {
             </div>
           </div>
         ))}
-
-        <div className="chain-row">
-          <div className="chain-icon tone-d">
-            <UsersIcon />
-          </div>
-          <div className="chain-card">
-            <div className="chain-tag">PUBLIC SHAREHOLDERS</div>
-            <div className="chain-name">Institutional + Retail Holders</div>
-            <div className="chain-detail">Illustrative sample · not live data</div>
-            <div className="chain-holders">
-              {SAMPLE_HOLDERS.map((h) => (
-                <div key={h.name} className="chain-holder">
-                  <span>{h.name}</span>
-                  <span className="chain-holder-pct">{h.pct}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
