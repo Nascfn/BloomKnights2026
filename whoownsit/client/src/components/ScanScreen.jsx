@@ -98,7 +98,7 @@ function ScanScreen({ onScan }) {
           </h1>
           <p className="hero-subtitle">
             Snap a photo of any product to reveal the company that really owns
-            it — the full ownership chain, live market data, and what a few
+            it: the full ownership chain, live market data, and what a few
             dollars a month invested last year would be worth today.
           </p>
 
